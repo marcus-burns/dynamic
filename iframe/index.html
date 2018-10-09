@@ -5,311 +5,138 @@
         
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta charset="UTF-8" name="ad.size" content="width=300,height=250">
-        <title>Dyson Banner 300x250</title>
+        <meta charset="UTF-8" name="ad.size" content="width=300,height=50">
+        <title>Dyson Banner 300x50</title>
         
+        <!-- Load the enabler - we can't fire the clickthrough without it. -->        
+        <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
+                       
         <script language="javascript">
-        
-            var clickTag = "http://www.dyson.com";
-			        
-            document.addEventListener("DOMContentLoaded", commenceLoadOfImages, false);
-        
-            var totalImagesToLoad = 12;
-            var imagesLoaded = 0;
-           
             
-                function commenceLoadOfImages(){
+            
+            /** Boolean changed when all scripts are downloaded. **/
+            var scriptsReady = false;
+            
+            
+            /*document.addEventListener("DOMContentLoaded", DOMContentLoadedHandler, false);            
+            function DOMContentLoadedHandler(){}*/   
+            
+            
+            /** Listen for when the Enabler is initalised. **/
+            if (Enabler.isInitialized()) {
+              initEnabler();
+            } else {
+              Enabler.addEventListener(studio.events.StudioEvent.INIT, initEnabler);
+            }
+                       
+            
+            /** We don't need to polite load Studio hosted .js files, so start grabbing them now (to eliminate a potential bottleneck). **/
+            commenceLoadOfScripts();
+               
                   
-                    
-                    var img01 = document.getElementById("cta");
-                    var download01 = new Image();
-                    download01.onload = function(){
-                        img01.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download01.src = "images/cta.png";
-                    
-                    
-                    var img02 = document.getElementById("footer");
-                    var download02 = new Image();
-                    download02.onload = function(){
-                        img02.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download02.src = "images/footer.png";
-                    
-                    
-                    var img03 = document.getElementById("t1");
-                    var download03 = new Image();
-                    download03.onload = function(){
-                        img03.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download03.src = "images/t1.png";
-                    
-                   
-                    var img04 = document.getElementById("footer");
-                    var download04 = new Image();
-                    download04.onload = function(){
-                        img04.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download04.src = "images/footer.png";
-                    
-                    
-                    var img05 = document.getElementById("ss");
-                    var download05 = new Image();
-                    download05.onload = function(){
-                        img05.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download05.src = "images/ss01.jpg";
-                    
-                    
-                    var img06 = document.getElementById("logo");
-                    var download06 = new Image();
-                    download06.onload = function(){
-                        img06.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download06.src = "images/logo.png";
-                    
-                    
-                    var img07 = document.getElementById("pic1");
-                    var download07 = new Image();
-                    download07.onload = function(){
-                        img07.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download07.src = "images/pic1.jpg";
-                    
-                    
-                    var img08 = document.getElementById("pic2");
-                    var download08 = new Image();
-                    download08.onload = function(){
-                        img08.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download08.src = "images/pic2.jpg";
-                    
-                    
-                    var img09 = document.getElementById("pic3");
-                    var download09 = new Image();
-                    download09.onload = function(){
-                        img09.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download09.src = "images/pic3.jpg";
-                    
-                    
-                    var img10 = document.getElementById("endimg");
-                    var download10 = new Image();
-                    download10.onload = function(){
-                        img10.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download10.src = "images/endimg.jpg";
-                    
-                    
-                    var img11 = document.getElementById("txt1");
-                    var download11 = new Image();
-                    download11.onload = function(){
-                        img11.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download11.src = "images/txt1.png";
-                    
-                    
-                    var img12 = document.getElementById("txt2");
-                    var download12 = new Image();
-                    download12.onload = function(){
-                        img12.src = this.src;   
-                        imagesLoaded++;
-                        checkTotalImagesLoaded();
-                    };
-                    download12.src = "images/txt2.png";
-                    
-                    
-                }
+            /** Runs when Enabler is ready. Adds the clickthrough and begins polite loading images (if polite load is necessary). **/
+            function initEnabler() {                
+                document.getElementById("banner").addEventListener('click', enablerClickthrough, false);                
+            }            
             
-                    
-                function checkTotalImagesLoaded(){                    
-                    if(imagesLoaded==totalImagesToLoad){
-                        commenceLoadOfScripts();
-                    }
-                }
+           
+            function checkIfPoliteLoadsComplete(){
+                if(scriptsReady){
+                    Banner.init();
+                }                    
+            }
             
-                function commenceLoadOfScripts() {               
-                      politeInit();
-                }
-                // lazyload script
-                // ref: http://www.nczonline.net/blog/2009/07/28/the-best-way-to-load-external-javascript/
-                function loadScript(url, callback){
-                    var script = document.createElement("script")
-                    script.type = "text/javascript";
-    
-                    if (script.readyState){  //IE
-                        script.onreadystatechange = function(){
-                            if (script.readyState == "loaded" || script.readyState == "complete"){
-                                script.onreadystatechange = null;
-                                callback();
-                            }
-                        };
-                    } else {  //Others
-                        script.onload = function(){
+            
+            // lazyload script
+            // ref: http://www.nczonline.net/blog/2009/07/28/the-best-way-to-load-external-javascript/
+            function loadScript(url, callback){
+                var script = document.createElement("script")
+                script.type = "text/javascript";
+
+                if (script.readyState){  //IE
+                    script.onreadystatechange = function(){
+                        if (script.readyState == "loaded" || script.readyState == "complete"){
+                            script.onreadystatechange = null;
                             callback();
-                        };
-                    }
-    
-                    script.src = url;
-                    document.getElementsByTagName("head")[0].appendChild(script);
+                        }
+                    };
+                } else {  //Others
+                    script.onload = function(){
+                        callback();
+                    };
                 }
-    
-                //Thanks to Jack @ Greensock for this sweet loader https://greensock.com/
-                function politeLoad(urls, onComplete) {
-                    var l = urls.length,
-                        loaded = 0,
-                        checkProgress = function() {
-                            if (++loaded === l && onComplete) {
-                                onComplete();
-                            }
-                        },
-                        i;
-                    for (i = 0; i < l; i++) {
-                        //Using the Enabler script loader to politely load the javascript
-                        loadScript(urls[i], checkProgress);
-                    }
+
+                script.src = url;
+                document.getElementsByTagName("head")[0].appendChild(script);
+            }
+
+            //Thanks to Jack @ Greensock for this sweet loader https://greensock.com/
+            function loadItem(urls, onComplete) {
+                var l = urls.length,
+                    loaded = 0,
+                    checkProgress = function() {
+                        if (++loaded === l && onComplete) {
+                            onComplete();
+                        }
+                    },
+                    i;
+                for (i = 0; i < l; i++) {
+                    //Using the Enabler script loader to politely load the javascript
+                    loadScript(urls[i], checkProgress);
                 }
-               function bgExitHandler(e) {
-          			//Enabler.exit('Background Exit');
-    			}
-				
-         
+            }
             
-                //now you can just feed stuff into that one function and give it a callback...
+           function enablerClickthrough(e) {
+                Enabler.exit('Background Exit');
+            }
+            
                 
-            
-            function politeInit(){
-                     politeLoad(['https://s0.2mdn.net/ads/studio/cached_libs/tweenmax_1.18.0_499ba64a23378545748ff12d372e59e9_min.js',
-                                'https://s0.2mdn.net/ads/studio/cached_libs/cssplugin_1.20.0_35574bbb2cf06c392e9036c87b5a8474_min.js',
-                                'https://s0.2mdn.net/ads/studio/cached_libs/easepack_1.20.0_f9d13d59407792e37168747225359927_min.js',
-                                'https://s0.2mdn.net/ads/studio/cached_libs/timelinemax_1.19.0_4cba7b163d6263b39d53727ed4c7bb6f_min.js',
+            /** Function to asynchronously load scripts. **/
+            function commenceLoadOfScripts(){
+                     loadItem(['https://s0.2mdn.net/ads/studio/cached_libs/tweenlite_2.0.1_min.js',
+                                 
+                                'https://s0.2mdn.net/ads/studio/cached_libs/cssplugin_2.0.1_min.js',
+                                 
+                                'https://s0.2mdn.net/ads/studio/cached_libs/easepack_2.0.1_min.js',
+                                 
+                                'https://s0.2mdn.net/ads/studio/cached_libs/timelinelite_2.0.1_min.js',
                                 
 								'script.js'], function() {
-                                    Banner.init();									
-                      				//document.getElementById("main-click").addEventListener('click', bgExitHandler, false);   
-                                    //Clear the load wheel here
-                                    document.getElementById("banner").style.opacity=1;
-                                    document.getElementById("loader-container").style.opacity=0;
-                                    document.getElementById("loader-container").style.display = "none";
-                                    document.getElementById("banner").style.display = "block";
-                               });
-    
-                    
+                                    console.log('Downloaded all scripts.');
+                                    scriptsReady = true;
+                                    checkIfPoliteLoadsComplete();
+                         
+                                    /** Clear the load wheel here **/
+                                    //document.getElementById("banner").style.opacity=1;
+                                    //document.getElementById("loader-container").style.opacity=0;
+                                    //document.getElementById("loader-container").style.display = "none";
+                                    //document.getElementById("banner").style.display = "block";
+                               });    
                 }
             
             
-            </script>
+        </script>
         
         <style>
-            html, body{ margin: 0; padding-left: 15px; }
+            
+            html, body{ margin: 0; padding: 0; }
             html { box-sizing: border-box; }
             *, *:before, *:after { box-sizing: inherit; }
-            .size { width: 300px; height: 250px; }
-            #loader-container{position:relative;}
-            #loader-container, #banner{border: 1px #cccccc solid;}
-            #loader-container, .loader:before, .loader:after {background:#ffffff;}
-            .loader, .loader:before, .loader:after {
-              border-radius: 50%;
-            }
-            .loader:before, .loader:after {
-              position: absolute;
-              content: '';
-            }
-            .loader:before {
-              width: 5.2em;
-              height: 10.2em;
-              border-radius: 10.2em 0 0 10.2em;
-              top: -0.1em;
-              left: -0.1em;
-              -webkit-transform-origin: 5.2em 5.1em;
-              transform-origin: 5.2em 5.1em;
-              -webkit-animation: load2 2s infinite ease 1.5s;
-              animation: load2 2s infinite ease 1.5s;
-            }
-            .loader {
-              font-size: 11px;
-              text-indent: -99999em;
-              margin: 70px auto;
-              position: absolute;
-              width: 10em;
-              height: 10em;
-              right: 0;
-              left: 0;
-              box-shadow: inset 0 0 0 0.5em #f1f1f1;
-              -webkit-transform: translateZ(0);
-              -ms-transform: translateZ(0);
-              transform: translateZ(0);
-            }
-            .loader:after {
-              width: 5.2em;
-              height: 10.2em;
-              border-radius: 0 10.2em 10.2em 0;
-              top: -0.1em;
-              left: 5.1em;
-              -webkit-transform-origin: 0px 5.1em;
-              transform-origin: 0px 5.1em;
-              -webkit-animation: load2 2s infinite ease;
-              animation: load2 2s infinite ease;
-            }
-            @-webkit-keyframes load2 {
-              0% {
-                -webkit-transform: rotate(0deg);
-                transform: rotate(0deg);
-              }
-              100% {
-                -webkit-transform: rotate(360deg);
-                transform: rotate(360deg);
-              }
-            }
-            @keyframes load2 {
-              0% {
-                -webkit-transform: rotate(0deg);
-                transform: rotate(0deg);
-              }
-              100% {
-                -webkit-transform: rotate(360deg);
-                transform: rotate(360deg);
-              }
-            }
+            .size { width: 300px; height: 50px; }
+            #banner{border: 1px #cccccc solid;}
+            
         </style>
         
         <style>
             
             body{
-                font-family: sans-serif;
                 color: #ffcc66;
             }
-
+                       
             .hidden{
                 opacity: 0;
             }
-
-            .click {
-                cursor:pointer;
-            }
-
+           
             img{
                 position: absolute;
             }
@@ -319,76 +146,48 @@
                 position: relative;
                 overflow: hidden;
             }
-
-            #main-click {
-                position: absolute;
-            }
-
-            #cta {
-                cursor:pointer;
-            }
-
-            #cta:hover {
-                opacity:0.75; 
-            }
             
             
-
         </style>
         
     </head>
     
     <body>
         
-        <div id="loader-container" class="size">
-                <div class="loader"></div>
-        </div>
-    
-        <a id="clickScreen" href="#" onclick="javascript:window.open(window.clickTag); console.log(clickTag); return false;" target="_blank">
         
-            <div id="banner" class="size" style="display:none;opacity:0;">         
-               
-                <div id="offset" style="position:absolute; left:-2px; top:-2px;">
-                
-                    <div style="position:absolute; width:300px; height:250px;">
-                        
-                        <div id="offwhite1" style="position:absolute; left:0px; top:0px; width:300px; height:250px; background:#f1f2f2; opacity:1;"></div>
-                                                
-                        <img id="ss" width="300" height="5535" style="opacity:1; top:1px;">
-                        
-                        <img id="pic1" width="300" height="250" style="opacity:0;">
+                 
+        <div id="banner" class="size" style="display:block;opacity:1;">         
 
-                        <img id="pic2" width="300" height="250" style="opacity:0;">
+            <div id="offset" style="position:absolute;">
 
-                        <img id="pic3" width="300" height="250" style="opacity:0;">
-
-                        <div id="topper" style="position:absolute; width:300px; height:59px; background:#f5f5f5; opacity:0;"></div>
-                        
-                        <img id="t1" width="300" height="250" style="opacity:0; top:-1px;">
-                        
-                        <img id="footer" width="300" height="47" style="opacity:0; top:203px;"> 
-                        
-                        <div id="white" style="position:absolute; width:300px; height:250px; background:#f1f2f2; opacity:0;"></div>
-                                                    
-                        <img id="endimg" width="300" height="250" style="opacity:0;">
-                        
-                        <img id="logo" width="300" height="250" style="opacity:0;">
-                        
-                        <img id="txt1" width="300" height="250" style="opacity:0; top:0px;">
-                        
-                        <img id="txt2" width="300" height="250" style="opacity:0; top:-42px;">
-                        
-                        <img id="cta" width="300" height="250" style="opacity:0; top:-25px;">
-                        
-                        
-                    </div>    
+                <div style="position:absolute; width:300px; height:50px;">
                     
-                
+                    <img id="endimg" width="300" height="50" src="images/endimg.jpg" style="opacity:0;">
+                    
+                    <img id="endtxt" width="300" height="50" src="images/endtxt.png" style="opacity:0;">
+                    
+                    <img id="logo" width="300" height="50" src="images/logo.png" style="opacity:1;">
+                    
+                    <img id="i1" width="300" height="50" src="images/i1.jpg" style="opacity:0;">
+                    
+                    <img id="i2" width="300" height="50" src="images/i2.jpg" style="opacity:0;">
+                    
+                    <img id="pink" width="300" height="50" src="images/pink.png" style="opacity:0;">
+                    
+                    
+                    
+                    <img id="t1" width="300" height="50" src="images/t1.png" style="opacity:0;">
+
+                    <img id="t2" width="300" height="50" src="images/t2.png" style="opacity:0;">
+                    
+                    <img id="cta" width="300" height="50" src="images/cta.png" style="opacity:0;">
+                    
+                    
                 </div>    
+
+            </div>    
                 
-            </div>
-            
-        </a>
+        </div>                  
         
     </body>
 
