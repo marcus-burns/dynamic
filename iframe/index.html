@@ -12,14 +12,62 @@
         <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
                        
         <script language="javascript">
-            
+                        
+            /** Boolean which determines whether we need to use a polite load (i.e. wait for the Enabler isPageLoaded event). **/
+            /** The current guidance is intial load can be up to 200kb. **/
+            var politeLoadRequired = false;
+                 
+            /** Boolean changed when all images are downloaded. **/
+            var politeLoadedImagesReady = false;
             
             /** Boolean changed when all scripts are downloaded. **/
             var scriptsReady = false;
             
+            /** Boolean changed when intro CSS animation has completed. **/
+            var introAnimationComplete = false;
             
-            /*document.addEventListener("DOMContentLoaded", DOMContentLoadedHandler, false);            
-            function DOMContentLoadedHandler(){}*/   
+            document.addEventListener("DOMContentLoaded", DOMContentLoadedHandler, false);
+            
+            function DOMContentLoadedHandler(){    
+                
+                /** Listen for the end of the intro CSS animations. **/
+                var animationEvent = whichAnimationEvent(), item = document.querySelector('.text2Anim');
+
+                item.addEventListener(animationEvent, animationEndCallback);
+
+                function animationEndCallback(event) {
+                    item.removeEventListener(animationEvent, animationEndCallback);
+                    console.log('CSS animation finished');
+                    introAnimationComplete = true;
+                    //document.getElementById("text2").style.opacity=1;
+                    checkIfPoliteLoadsComplete();
+                }
+                
+                /** If the total file size for this creative is under 200kb, start loading images now. **/
+                if(politeLoadRequired==false){                    
+                    commenceLoadOfImages();
+                }
+            }
+            
+            
+            // Function from David Walsh: http://davidwalsh.name/css-animation-callback
+            function whichAnimationEvent(){
+                var t,
+                    el = document.createElement("fakeelement");
+
+                var transitions = {
+                    "animation"      : "animationend",
+                    "OAnimation"     : "oAnimationEnd",
+                    "MozAnimation"   : "animationend",
+                    "WebkitAnimation": "webkitAnimationEnd"
+                }
+
+                for (t in transitions){
+                    if (el.style[t] !== undefined){
+                        return transitions[t];
+                    }
+                }
+            }
             
             
             /** Listen for when the Enabler is initalised. **/
@@ -28,22 +76,74 @@
             } else {
               Enabler.addEventListener(studio.events.StudioEvent.INIT, initEnabler);
             }
-                       
-            
+                               
             /** We don't need to polite load Studio hosted .js files, so start grabbing them now (to eliminate a potential bottleneck). **/
             commenceLoadOfScripts();
                
                   
             /** Runs when Enabler is ready. Adds the clickthrough and begins polite loading images (if polite load is necessary). **/
-            function initEnabler() {                
-                document.getElementById("banner").addEventListener('click', enablerClickthrough, false);                
+            function initEnabler() {
+                
+                document.getElementById("banner").addEventListener('click', enablerClickthrough, false); 
+                                
+                if(politeLoadRequired==true)
+                {
+                    if (Enabler.isPageLoaded())
+                    {
+                        commenceLoadOfImages();
+                    } else {
+                        Enabler.addEventListener(studio.events.StudioEvent.PAGE_LOADED, commenceLoadOfImages);
+                    }
+                }
             }            
             
-           
+            /** The current number of images loaded. **/
+            var imagesLoaded = 0;
+            
+            /** The total number of images to load. **/
+            var totalImagesToLoad = 1;
+            
+            /** Function to asynchronously load images. **/
+            function commenceLoadOfImages(){
+                                                          
+                var img01 = document.getElementById("ss1");
+                var download01 = new Image();
+                download01.onload = function(){
+                    img01.src = this.src;   
+                    imagesLoaded++;
+                    checkTotalImagesLoaded();
+                };
+                download01.src = "images/ss1.jpg";
+
+                    
+            }
+                                
+            function checkTotalImagesLoaded(){                    
+                if(imagesLoaded==totalImagesToLoad){
+                    console.log('Downloaded all polite load images.');
+                    politeLoadedImagesReady = true;
+                    checkIfPoliteLoadsComplete();
+                }
+            }
+
             function checkIfPoliteLoadsComplete(){
-                if(scriptsReady){
+                if(politeLoadedImagesReady && scriptsReady && introAnimationComplete){
                     Banner.init();
                 }                    
+            }
+            
+          
+            function countLines(elemStr) {
+                var elem = document.getElementById(elemStr)
+                var divHeight = elem.offsetHeight;
+                var divPaddingBottom = parseInt(window.getComputedStyle(elem, null).getPropertyValue('padding-bottom'));
+                var divPaddingTop = parseInt(window.getComputedStyle(elem, null).getPropertyValue('padding-top'));
+                var lineHeight = parseInt(window.getComputedStyle(elem, null).getPropertyValue('line-height'));
+                var lines = (divHeight - divPaddingBottom - divPaddingTop) / lineHeight;
+                console.log("Number of footer text lines: " + lines);
+                if(lines==1){
+                    document.getElementById("icon").className = "icon1line";
+                }
             }
             
             
@@ -118,13 +218,76 @@
         </script>
         
         <style>
-            
             html, body{ margin: 0; padding: 0; }
             html { box-sizing: border-box; }
             *, *:before, *:after { box-sizing: inherit; }
             .size { width: 300px; height: 50px; }
-            #banner{border: 1px #cccccc solid;}
-            
+            #loader-container{position:relative;}
+            #loader-container, #banner{border: 1px #cccccc solid;}
+            #loader-container, .loader:before, .loader:after {background:#ffffff;}
+            .loader, .loader:before, .loader:after {
+              border-radius: 50%;
+            }
+            .loader:before, .loader:after {
+              position: absolute;
+              content: '';
+            }
+            .loader:before {
+              width: 5.2em;
+              height: 10.2em;
+              border-radius: 10.2em 0 0 10.2em;
+              top: -0.1em;
+              left: -0.1em;
+              -webkit-transform-origin: 5.2em 5.1em;
+              transform-origin: 5.2em 5.1em;
+              -webkit-animation: load2 2s infinite ease 1.5s;
+              animation: load2 2s infinite ease 1.5s;
+            }
+            .loader {
+              font-size: 11px;
+              text-indent: -99999em;
+              margin: 70px auto;
+              position: absolute;
+              width: 10em;
+              height: 10em;
+              right: 0;
+              left: 0;
+              box-shadow: inset 0 0 0 0.5em #f1f1f1;
+              -webkit-transform: translateZ(0);
+              -ms-transform: translateZ(0);
+              transform: translateZ(0);
+            }
+            .loader:after {
+              width: 5.2em;
+              height: 10.2em;
+              border-radius: 0 10.2em 10.2em 0;
+              top: -0.1em;
+              left: 5.1em;
+              -webkit-transform-origin: 0px 5.1em;
+              transform-origin: 0px 5.1em;
+              -webkit-animation: load2 2s infinite ease;
+              animation: load2 2s infinite ease;
+            }
+            @-webkit-keyframes load2 {
+              0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+              }
+              100% {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+              }
+            }
+            @keyframes load2 {
+              0% {
+                -webkit-transform: rotate(0deg);
+                transform: rotate(0deg);
+              }
+              100% {
+                -webkit-transform: rotate(360deg);
+                transform: rotate(360deg);
+              }
+            }
         </style>
         
         <style>
@@ -132,7 +295,8 @@
             body{
                 color: #ffcc66;
             }
-                       
+
+            
             .hidden{
                 opacity: 0;
             }
@@ -146,43 +310,68 @@
                 position: relative;
                 overflow: hidden;
             }
+
+                   
+            .text2Anim{
+                animation-name: animate-in;
+                animation-delay: 0.2s;
+                animation-duration:0.5s;
+                animation-fill-mode: forwards;
+            }
+           
+            .img2Anim{
+                animation-name: animate-in2;
+                animation-delay: 0.0s;
+                animation-duration:1.1s;
+                animation-fill-mode: forwards;
+            }
             
             
+            @keyframes animate-in {
+                0%   {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+            
+           @keyframes animate-in2 {
+                0%   {
+                    opacity: 0.25;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+
         </style>
         
     </head>
     
     <body>
         
-        
+        <!--<div id="loader-container" class="size">
+                <div class="loader"></div>
+        </div>-->
                  
         <div id="banner" class="size" style="display:block;opacity:1;">         
 
             <div id="offset" style="position:absolute;">
 
                 <div style="position:absolute; width:300px; height:50px;">
-                    
-                    <img id="endimg" width="300" height="50" src="images/endimg.jpg" style="opacity:0;">
-                    
-                    <img id="endtxt" width="300" height="50" src="images/endtxt.png" style="opacity:0;">
-                    
+                                 
                     <img id="logo" width="300" height="50" src="images/logo.png" style="opacity:1;">
                     
-                    <img id="i1" width="300" height="50" src="images/i1.jpg" style="opacity:0;">
+                    <img id="text2" width="300" height="50" class="text2Anim" style="opacity:0;" src="images/txt.png">
                     
-                    <img id="i2" width="300" height="50" src="images/i2.jpg" style="opacity:0;">
+                    <img id="ss" width="92" height="50" class="img2Anim" style="opacity:0.25;" src="images/ss.jpg">
                     
-                    <img id="pink" width="300" height="50" src="images/pink.png" style="opacity:0;">
+                    <img id="ss1" width="92" height="8000" style="opacity:0;">
                     
-                    
-                    
-                    <img id="t1" width="300" height="50" src="images/t1.png" style="opacity:0;">
+                    <img id="cta" width="300" height="50" style="opacity:1;" src="images/cta.png">
+                       
 
-                    <img id="t2" width="300" height="50" src="images/t2.png" style="opacity:0;">
-                    
-                    <img id="cta" width="300" height="50" src="images/cta.png" style="opacity:0;">
-                    
-                    
                 </div>    
 
             </div>    
