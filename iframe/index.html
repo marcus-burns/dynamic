@@ -5,8 +5,8 @@
         
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta charset="UTF-8" name="ad.size" content="width=300,height=50">
-        <title>Dyson Banner 300x50</title>
+        <meta charset="UTF-8" name="ad.size" content="width=320,height=50">
+        <title>Dyson Banner 320x50</title>
         
         <!-- Load the enabler - we can't fire the clickthrough without it. -->        
         <script src="https://s0.2mdn.net/ads/studio/Enabler.js"></script>
@@ -221,7 +221,7 @@
             html, body{ margin: 0; padding: 0; }
             html { box-sizing: border-box; }
             *, *:before, *:after { box-sizing: inherit; }
-            .size { width: 300px; height: 50px; }
+            .size { width: 320px; height: 50px; }
             #loader-container{position:relative;}
             #loader-container, #banner{border: 1px #cccccc solid;}
             #loader-container, .loader:before, .loader:after {background:#ffffff;}
@@ -293,7 +293,7 @@
         <style>
             
             body{
-                color: #ffcc66;
+                color: #efefef;
             }
 
             
@@ -306,7 +306,7 @@
             }
 
             #banner {
-                background: #ffffff;
+                background: #efefef;
                 position: relative;
                 overflow: hidden;
             }
@@ -314,7 +314,7 @@
                    
             .text2Anim{
                 animation-name: animate-in;
-                animation-delay: 0.2s;
+                animation-delay: 0.0s;
                 animation-duration:0.5s;
                 animation-fill-mode: forwards;
             }
@@ -359,17 +359,19 @@
 
             <div id="offset" style="position:absolute;">
 
-                <div style="position:absolute; width:300px; height:50px;">
+                <div style="position:absolute; width:320px; height:50px;">
                                  
-                    <img id="logo" width="300" height="50" src="images/logo.png" style="opacity:1;">
+                    <img width="320" height="50" src="images/img.jpg" style="opacity:1;">
                     
-                    <img id="text2" width="300" height="50" class="text2Anim" style="opacity:0; top:-1px;" src="images/txt.png">
+                    <img id="logo" width="320" height="50" src="images/logo.png" style="opacity:1; left:130px;">
                     
-                    <img id="ss" width="92" height="50" class="img2Anim" style="opacity:0.25;" src="images/ss.jpg">
+                    <img id="text1" width="320" height="50" style="opacity:0; top:-0px;" src="images/txt1.png">
+                                        
+                    <img id="ss" width="92" height="50" class="img2Anim" style="opacity:0.25; left:0px;" src="images/ss.jpg">
                     
-                    <img id="ss1" width="92" height="8000" style="opacity:0;">
+                    <img id="ss1" width="92" height="6600" style="opacity:0; left:0px;">
                     
-                    <img id="cta" width="300" height="50" style="opacity:1;" src="images/cta.png">
+                    <img id="cta" width="320" class="text2Anim" height="50" style="opacity:1; left:130px;" src="images/cta.png">
                        
 
                 </div>    
